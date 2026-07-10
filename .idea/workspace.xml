@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="338d3a98-b859-4cc6-b265-f44897140102" name="Changes" comment="" />
+    <list default="true" id="338d3a98-b859-4cc6-b265-f44897140102" name="Changes" comment="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,8 +37,19 @@
     </system>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Santiago Loaiza &lt;santiago.loaiza.vasquez@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/SantiagoLoaizaVasquez/TioYoReparo.git",
+    "accountId": "5f406ea4-5666-45e4-b55b-906ab024dabb"
+  }
+}]]></component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\GAMER\.gradle\wrapper\dists\gradle-9.6.1-bin\4ticwg1pgcbps2hj28r8so764\gradle-9.6.1" javaHome="C:\Program Files\Android\Android Studio\jbr" gradleVersion="9.6.1" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
@@ -140,6 +151,27 @@
       <option name="presentableId" value="Default" />
       <updated>1783626968740</updated>
     </task>
+    <task id="LOCAL-00001" summary="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws">
+      <option name="closed" value="true" />
+      <created>1783645146505</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783645146505</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws">
+      <option name="closed" value="true" />
+      <created>1783645372068</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1783645372068</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws" />
+    <option name="LAST_COMMIT_MESSAGE" value="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws" />
   </component>
 </project>
