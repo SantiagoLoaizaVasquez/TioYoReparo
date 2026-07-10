@@ -174,4 +174,20 @@
     <MESSAGE value="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws" />
     <option name="LAST_COMMIT_MESSAGE" value="Proyecto casi finalizado&#10;&#10;-Pantallas agregadas&#10;-funciones locales sin aws" />
   </component>
+  <component name="play_dynamic_filters_status">
+    <option name="appIdToCheckInfo">
+      <map>
+        <entry key="com.t2.appaws14753">
+          <value>
+            <CheckInfo lastCheckTimestamp="1783645149181" />
+          </value>
+        </entry>
+        <entry key="com.t2.appaws14753.test">
+          <value>
+            <CheckInfo lastCheckTimestamp="1783645149180" />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
 </project>
