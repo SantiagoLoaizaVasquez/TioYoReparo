@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -32,7 +31,6 @@ fun TecnicosScreen() {
     val primaryBlue = Color(0xFF0D31B1)
     val yellow = Color(0xFFFFEB3B)
     val green = Color(0xFF4CAF50)
-    val redError = Color(0xFFD32F2F)
 
     var showAddDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -80,7 +78,7 @@ fun TecnicosScreen() {
             Text("Añadir Técnico", fontWeight = FontWeight.SemiBold)
         }
 
-        // El feedback ahora se muestra con el Snackbar central del EventBus (en MainActivity).
+
 
         Spacer(modifier = Modifier.height(30.dp))
 
