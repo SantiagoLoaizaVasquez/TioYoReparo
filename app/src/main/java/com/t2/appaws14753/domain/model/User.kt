@@ -32,9 +32,7 @@ object Roles {
 }
 
 object DataMock {
-    // Cuentas de prueba: se conservan únicamente para el login (ver LoginScreen).
-    // El resto de la app ya no usa datos moqueados; todas las pantallas trabajan
-    // con datos reales provenientes de Room a través de AppModule.
+    // Cuentas de prueba
     val usuarios = listOf(
         UsuarioSesion("admin@hardware.com", Roles.ADMIN, "Administrador", "mock-admin"),
         UsuarioSesion("cliente@hardware.com", Roles.CLIENTE, "Forastero Perua", "mock-cliente"),
