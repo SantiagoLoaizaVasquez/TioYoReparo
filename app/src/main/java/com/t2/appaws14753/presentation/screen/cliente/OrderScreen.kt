@@ -14,30 +14,63 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.t2.appaws14753.domain.model.DataMock
-import com.t2.appaws14753.domain.model.OrdenServicio
-import com.t2.appaws14753.domain.model.Equipo
+import com.t2.appaws14753.di.AppModule
+import com.t2.appaws14753.domain.model.Dispositivo
+import com.t2.appaws14753.domain.model.Orden
+import com.t2.appaws14753.domain.model.SesionManager
+import com.t2.appaws14753.presentation.event.EventBus
+import com.t2.appaws14753.presentation.event.UiEvent
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun OrderScreen() {
+    val context = LocalContext.current
+    val ordenUseCases = remember { AppModule.provideOrdenUseCases(context) }
+    val dispositivoUseCases = remember { AppModule.provideDispositivoUseCases(context) }
+    val scope = rememberCoroutineScope()
+
     val primaryBlue = Color(0xFF0D31B1)
-    
+    val sesion = SesionManager.actual
+
+    var ordenes by remember { mutableStateOf<List<Orden>>(emptyList()) }
+    var dispositivos by remember { mutableStateOf<List<Dispositivo>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var reloadTrigger by remember { mutableIntStateOf(0) }
+
     var showFilterMenu by remember { mutableStateOf(false) }
     var selectedFilter by remember { mutableStateOf("Todos los Estados") }
-    
-    var showNewOrderDialog by remember { mutableStateOf(false) }
-    var showDetailDialog by remember { mutableStateOf<OrdenServicio?>(null) }
 
-    val filteredOrders = remember(selectedFilter, DataMock.ordenes.size) {
-        DataMock.ordenes
-            .filter { 
-                selectedFilter == "Todos los Estados" || it.estado.equals(selectedFilter, ignoreCase = true)
+    var showNewOrderDialog by remember { mutableStateOf(false) }
+    var showDetailDialog by remember { mutableStateOf<Orden?>(null) }
+
+    LaunchedEffect(reloadTrigger, sesion?.usuarioId) {
+        isLoading = true
+        try {
+            val clienteId = sesion?.usuarioId
+            if (clienteId != null) {
+                ordenes = ordenUseCases.getOrdenes().filter { it.clienteId == clienteId }
+                dispositivos = dispositivoUseCases.getDispositivos().filter { it.clienteId == clienteId }
             }
-            .sortedByDescending { it.numero }
+        } catch (e: Exception) {
+            EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudieron cargar tus órdenes."))
+        } finally {
+            isLoading = false
+        }
     }
+
+    fun equipoDe(dispositivoId: String): String =
+        dispositivos.firstOrNull { it.dispositivoId == dispositivoId }?.let { "${it.marca} ${it.modelo} (${it.numeroSerie})" } ?: "Equipo desconocido"
+
+    val filteredOrders = ordenes
+        .filter { selectedFilter == "Todos los Estados" || it.estado.equals(selectedFilter, ignoreCase = true) }
+        .sortedByDescending { it.fechaIngreso }
 
     Column(
         modifier = Modifier
@@ -52,7 +85,7 @@ fun OrderScreen() {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Gestiona las reparaciones y mantenimientos",
+            text = "Tus reparaciones y mantenimientos",
             fontSize = 13.sp,
             color = Color.Gray,
             modifier = Modifier.padding(top = 4.dp)
@@ -76,27 +109,15 @@ fun OrderScreen() {
                 )
             )
             Box(modifier = Modifier.matchParentSize().clickable { showFilterMenu = true })
-            
+
             DropdownMenu(
                 expanded = showFilterMenu,
                 onDismissRequest = { showFilterMenu = false }
             ) {
-                DropdownMenuItem(
-                    text = { Text("Todos los Estados") },
-                    onClick = { selectedFilter = "Todos los Estados"; showFilterMenu = false }
-                )
-                DropdownMenuItem(
-                    text = { Text("Completado") },
-                    onClick = { selectedFilter = "completado"; showFilterMenu = false }
-                )
-                DropdownMenuItem(
-                    text = { Text("Pendiente") },
-                    onClick = { selectedFilter = "pendiente"; showFilterMenu = false }
-                )
-                DropdownMenuItem(
-                    text = { Text("En Proceso") },
-                    onClick = { selectedFilter = "en proceso"; showFilterMenu = false }
-                )
+                DropdownMenuItem(text = { Text("Todos los Estados") }, onClick = { selectedFilter = "Todos los Estados"; showFilterMenu = false })
+                DropdownMenuItem(text = { Text("Completado") }, onClick = { selectedFilter = "completado"; showFilterMenu = false })
+                DropdownMenuItem(text = { Text("Pendiente") }, onClick = { selectedFilter = "pendiente"; showFilterMenu = false })
+                DropdownMenuItem(text = { Text("En Proceso") }, onClick = { selectedFilter = "en proceso"; showFilterMenu = false })
             }
         }
 
@@ -106,42 +127,101 @@ fun OrderScreen() {
             onClick = { showNewOrderDialog = true },
             modifier = Modifier.fillMaxWidth().height(48.dp),
             shape = RoundedCornerShape(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
+            colors = ButtonDefaults.buttonColors(containerColor = primaryBlue),
+            enabled = dispositivos.isNotEmpty()
         ) {
             Text("Nueva Orden", fontWeight = FontWeight.SemiBold)
+        }
+        if (dispositivos.isEmpty() && !isLoading) {
+            Text(
+                "Registra un equipo primero en la pestaña Equipos.",
+                color = Color.Gray,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        filteredOrders.forEach { orden ->
-            DetailedOrderCard(
-                orden = orden,
-                onViewDetail = { showDetailDialog = orden }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = primaryBlue)
+                }
+            }
+            filteredOrders.isEmpty() -> {
+                Text("No hay órdenes registradas.", fontSize = 13.sp, color = Color.Gray)
+            }
+            else -> {
+                filteredOrders.forEach { orden ->
+                    DetailedOrderCard(
+                        orden = orden,
+                        equipoNombre = equipoDe(orden.dispositivoId),
+                        onViewDetail = { showDetailDialog = orden }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
     }
 
     if (showNewOrderDialog) {
-        NewOrderDialog(onDismiss = { showNewOrderDialog = false })
+        NewOrderDialog(
+            dispositivos = dispositivos,
+            onDismiss = { showNewOrderDialog = false },
+            onConfirmar = { dispositivo, motivo ->
+                val clienteId = sesion?.usuarioId
+                if (clienteId != null) {
+                    scope.launch {
+                        try {
+                            ordenUseCases.insertarOrden(
+                                Orden(
+                                    dispositivoId = dispositivo.dispositivoId,
+                                    clienteId = clienteId,
+                                    tecnicoId = "",
+                                    tecnicoNombre = "Sin asignar",
+                                    estado = "pendiente",
+                                    prioridad = "Baja",
+                                    fechaIngreso = System.currentTimeMillis(),
+                                    detalleDiagnostico = motivo,
+                                    totalCobrado = 0.0
+                                )
+                            )
+                            EventBus.enviar(UiEvent.SUCCESS("Orden creada correctamente."))
+                            showNewOrderDialog = false
+                            reloadTrigger++
+                        } catch (e: Exception) {
+                            EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudo crear la orden."))
+                        }
+                    }
+                }
+            }
+        )
     }
 
     showDetailDialog?.let { orden ->
-        OrderDetailDialog(orden = orden, onDismiss = { showDetailDialog = null })
+        OrderDetailDialog(orden = orden, equipoNombre = equipoDe(orden.dispositivoId), onDismiss = { showDetailDialog = null })
     }
+}
+
+private fun formatFecha(timestamp: Long?): String {
+    if (timestamp == null) return "-"
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }
 
 @Composable
 fun DetailedOrderCard(
-    orden: OrdenServicio,
+    orden: Orden,
+    equipoNombre: String,
     onViewDetail: () -> Unit
 ) {
     val yellowStatus = Color(0xFFFFEB3B)
     val greenStatus = Color(0xFF4CAF50)
     val orangeStatus = Color(0xFFFF9800)
-    
+
     val redPriority = Color(0xFFFF8A80)
     val greenPriority = Color(0xFFB9F6CA)
     val yellowPriority = Color(0xFFFFF59D)
@@ -151,7 +231,7 @@ fun DetailedOrderCard(
         "en proceso" -> orangeStatus
         else -> yellowStatus
     }
-    
+
     val priorityColor = when (orden.prioridad.lowercase()) {
         "alta" -> redPriority
         "media" -> yellowPriority
@@ -166,13 +246,10 @@ fun DetailedOrderCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
-                    Text(text = "Orden #${orden.numero}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = orden.tipo, fontSize = 12.sp, color = Color.Gray)
+                    Text(text = "Orden #${orden.ordenId.take(8)}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = formatFecha(orden.fechaIngreso), fontSize = 12.sp, color = Color.Gray)
                 }
-                Surface(
-                    color = statusColor,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
+                Surface(color = statusColor, shape = RoundedCornerShape(12.dp)) {
                     Text(
                         text = orden.estado,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -191,7 +268,7 @@ fun DetailedOrderCard(
                     .padding(8.dp)
             ) {
                 Text(text = "Equipo", fontSize = 11.sp, color = Color.Gray)
-                Text(text = orden.equipo, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                Text(text = equipoNombre, fontWeight = FontWeight.Medium, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -201,10 +278,7 @@ fun DetailedOrderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    color = priorityColor,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
+                Surface(color = priorityColor, shape = RoundedCornerShape(8.dp)) {
                     Text(
                         text = "Prioridad ${orden.prioridad}",
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
@@ -212,15 +286,10 @@ fun DetailedOrderCard(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                
+
                 TextButton(onClick = onViewDetail) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Visibility,
-                            contentDescription = null,
-                            tint = Color(0xFFB06AB3),
-                            modifier = Modifier.size(20.dp)
-                        )
+                        Icon(Icons.Default.Visibility, contentDescription = null, tint = Color(0xFFB06AB3), modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Ver Detalle", color = Color(0xFFB06AB3), fontSize = 13.sp)
                     }
@@ -230,12 +299,14 @@ fun DetailedOrderCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewOrderDialog(onDismiss: () -> Unit) {
+fun NewOrderDialog(dispositivos: List<Dispositivo>, onDismiss: () -> Unit, onConfirmar: (Dispositivo, String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedEquipo by remember { mutableStateOf<Equipo?>(null) }
+    var selectedDispositivo by remember { mutableStateOf<Dispositivo?>(null) }
+    var motivo by remember { mutableStateOf("") }
     var errorMsg by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Nueva Orden") },
@@ -243,10 +314,10 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
             Column {
                 Text("Seleccionar Equipo Registrado", fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = selectedEquipo?.nombre ?: "Seleccionar...",
+                        value = selectedDispositivo?.let { "${it.marca} ${it.modelo}" } ?: "Seleccionar...",
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -258,16 +329,16 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
                         enabled = false
                     )
                     Box(modifier = Modifier.matchParentSize().clickable { expanded = true })
-                    
+
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        DataMock.equipos.forEach { equipo ->
+                        dispositivos.forEach { dispositivo ->
                             DropdownMenuItem(
-                                text = { Text("${equipo.nombre} (${equipo.nroSerie})") },
+                                text = { Text("${dispositivo.marca} ${dispositivo.modelo} (${dispositivo.numeroSerie})") },
                                 onClick = {
-                                    selectedEquipo = equipo
+                                    selectedDispositivo = dispositivo
                                     expanded = false
                                     errorMsg = ""
                                 }
@@ -275,8 +346,8 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
                         }
                     }
                 }
-                
-                if (DataMock.equipos.isEmpty()) {
+
+                if (dispositivos.isEmpty()) {
                     Text(
                         "No tienes equipos registrados. Regístralos primero en la pestaña Equipos.",
                         color = Color.Red,
@@ -284,6 +355,15 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = motivo,
+                    onValueChange = { motivo = it; errorMsg = "" },
+                    label = { Text("Motivo de la solicitud") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 if (errorMsg.isNotEmpty()) {
                     Text(errorMsg, color = Color.Red, fontSize = 12.sp)
@@ -293,26 +373,18 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
         confirmButton = {
             Button(
                 onClick = {
-                    val equipo = selectedEquipo
-                    if (equipo != null) {
-                        DataMock.ordenes.add(
-                            OrdenServicio(
-                                numero = DataMock.ordenes.size + 1,
-                                tipo = "Solicitud nueva",
-                                equipo = equipo.nombre,
-                                nroSerie = equipo.nroSerie,
-                                estado = "pendiente",
-                                prioridad = "Baja",
-                                actualizado = "Hoy",
-                                fechaCreacion = "Hoy"
-                            )
-                        )
-                        onDismiss()
-                    } else {
+                    val dispositivo = selectedDispositivo
+                    if (dispositivo == null) {
                         errorMsg = "Debes seleccionar un equipo"
+                        return@Button
                     }
+                    if (motivo.isBlank()) {
+                        errorMsg = "Describe el motivo de la solicitud"
+                        return@Button
+                    }
+                    onConfirmar(dispositivo, motivo.trim())
                 },
-                enabled = selectedEquipo != null
+                enabled = selectedDispositivo != null
             ) {
                 Text("Crear")
             }
@@ -324,19 +396,20 @@ fun NewOrderDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun OrderDetailDialog(orden: OrdenServicio, onDismiss: () -> Unit) {
+fun OrderDetailDialog(orden: Orden, equipoNombre: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Detalle de Orden #${orden.numero}") },
+        title = { Text("Detalle de Orden #${orden.ordenId.take(8)}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                DetailItem("Técnico:", orden.tecnico)
-                DetailItem("Fecha envío:", orden.fechaCreacion)
-                DetailItem("ID Orden:", orden.numero.toString())
-                DetailItem("Garantía:", orden.fechaGarantia)
-                DetailItem("Completado:", orden.fechaCompletado)
-                if (orden.costo > 0) {
-                    DetailItem("Costo:", "$${orden.costo}")
+                DetailItem("Equipo:", equipoNombre)
+                DetailItem("Técnico:", orden.tecnicoNombre.ifBlank { "Sin asignar" })
+                DetailItem("Fecha ingreso:", formatFecha(orden.fechaIngreso))
+                DetailItem("Estado:", orden.estado)
+                DetailItem("Fecha entrega:", formatFecha(orden.fechaEntrega))
+                DetailItem("Diagnóstico:", orden.detalleDiagnostico)
+                if (orden.totalCobrado > 0) {
+                    DetailItem("Costo:", "S/${"%.2f".format(orden.totalCobrado)}")
                 }
             }
         },

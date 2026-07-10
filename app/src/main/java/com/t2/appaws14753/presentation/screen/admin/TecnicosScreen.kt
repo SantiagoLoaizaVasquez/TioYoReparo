@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
@@ -16,24 +15,47 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.t2.appaws14753.domain.model.DataMock
-import com.t2.appaws14753.domain.model.Tecnico
+import com.t2.appaws14753.di.AppModule
+import com.t2.appaws14753.domain.model.Orden
+import com.t2.appaws14753.domain.model.Roles
+import com.t2.appaws14753.domain.model.Usuario
 import com.t2.appaws14753.presentation.event.EventBus
 import com.t2.appaws14753.presentation.event.UiEvent
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun TecnicosScreen() {
+
+    val context = LocalContext.current
+    val usuarioUseCases = remember { AppModule.provideUsuarioUseCases(context) }
+    val ordenUseCases = remember { AppModule.provideOrdenUseCases(context) }
 
     val primaryBlue = Color(0xFF0D31B1)
     val yellow = Color(0xFFFFEB3B)
     val green = Color(0xFF4CAF50)
 
-    var showAddDialog by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    var tecnicos by remember { mutableStateOf<List<Usuario>>(emptyList()) }
+    var ordenes by remember { mutableStateOf<List<Orden>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+        try {
+            val usuarios = usuarioUseCases.getUsuarios()
+            tecnicos = usuarios.filter { Roles.normalizar(it.rol) == Roles.TECNICO }
+            ordenes = ordenUseCases.getOrdenes()
+        } catch (e: Exception) {
+            EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudo cargar la información de técnicos."))
+        } finally {
+            isLoading = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -54,73 +76,80 @@ fun TecnicosScreen() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Gestión Técnicos",
+            text = "Desempeño de Técnicos",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Administra personal del mantenimiento",
+            text = "Órdenes activas y completadas por técnico",
             color = Color.Gray,
             fontSize = 13.sp
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Para añadir o editar técnicos, ve a la pestaña Usuarios.",
+            color = Color.Gray,
+            fontSize = 11.sp
+        )
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
-            onClick = { showAddDialog = true },
-            modifier = Modifier.fillMaxWidth().height(48.dp),
-            shape = RoundedCornerShape(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
-        ) {
-            Icon(Icons.Default.Add, null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Añadir Técnico", fontWeight = FontWeight.SemiBold)
-        }
-
-
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        if (DataMock.tecnicos.isEmpty()) {
-            Text(
-                text = "Aún no hay técnicos registrados.",
-                color = Color.Gray,
-                fontSize = 13.sp,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-        } else {
-            DataMock.tecnicos.forEach { tecnico ->
-                TecnicoItemCard(
-                    tecnico = tecnico,
-                    primaryBlue = primaryBlue,
-                    yellow = yellow,
-                    green = green
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-
-    if (showAddDialog) {
-        AddTecnicoDialog(
-            onDismiss = { showAddDialog = false },
-            onResult = { success, message ->
-                scope.launch {
-                    if (success) {
-                        EventBus.enviar(UiEvent.SUCCESS(message))
-                    } else {
-                        EventBus.enviar(UiEvent.ERROR(message))
-                    }
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = primaryBlue)
                 }
             }
-        )
+            tecnicos.isEmpty() -> {
+                Text(
+                    text = "Aún no hay técnicos registrados.",
+                    color = Color.Gray,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            else -> {
+                tecnicos.forEach { tecnico ->
+                    val ordenesTecnico = ordenes.filter { it.tecnicoId == tecnico.usuarioId }
+                    val activas = ordenesTecnico.count {
+                        it.estado.equals("pendiente", ignoreCase = true) || it.estado.equals("en proceso", ignoreCase = true)
+                    }
+                    val completadas = ordenesTecnico.count { it.estado.equals("completado", ignoreCase = true) }
+                    val ultimaActividad = ordenesTecnico
+                        .mapNotNull { it.fechaEntrega ?: it.fechaIngreso }
+                        .maxOrNull()
+
+                    TecnicoItemCard(
+                        tecnico = tecnico,
+                        activas = activas,
+                        completadas = completadas,
+                        ultimaActividad = formatFecha(ultimaActividad),
+                        primaryBlue = primaryBlue,
+                        yellow = yellow,
+                        green = green
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
     }
+}
+
+private fun formatFecha(timestamp: Long?): String {
+    if (timestamp == null) return "Sin actividad"
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
 }
 
 @Composable
 fun TecnicoItemCard(
-    tecnico: Tecnico,
+    tecnico: Usuario,
+    activas: Int,
+    completadas: Int,
+    ultimaActividad: String,
     primaryBlue: Color,
     yellow: Color,
     green: Color
@@ -146,24 +175,18 @@ fun TecnicoItemCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = tecnico.nombre.uppercase(),
+                text = "${tecnico.nombres} ${tecnico.apellidoPaterno}".uppercase(),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
 
             Text(
-                text = tecnico.especialidad,
+                text = tecnico.especialidad?.takeIf { it.isNotBlank() } ?: "Sin especialidad",
                 color = Color.Gray
             )
 
             Text(
-                text = tecnico.email,
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
-
-            Text(
-                text = tecnico.telefono,
+                text = tecnico.correo,
                 color = Color.Gray,
                 fontSize = 12.sp
             )
@@ -184,7 +207,7 @@ fun TecnicoItemCard(
                     )
 
                     Text(
-                        "${tecnico.activas}",
+                        "$activas",
                         fontWeight = FontWeight.Bold
                     )
 
@@ -200,7 +223,7 @@ fun TecnicoItemCard(
                     )
 
                     Text(
-                        "${tecnico.completadas}",
+                        "$completadas",
                         fontWeight = FontWeight.Bold
                     )
 
@@ -211,111 +234,9 @@ fun TecnicoItemCard(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "⭐ Calificación: ${tecnico.calificacion} / 5.0",
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Text(
-                text = "Última actividad: ${tecnico.ultimaActividad}",
+                text = "Última actividad: $ultimaActividad",
                 color = Color.Gray
             )
         }
     }
-}
-
-@Composable
-fun AddTecnicoDialog(
-    onDismiss: () -> Unit,
-    onResult: (success: Boolean, message: String) -> Unit
-) {
-    var nombre by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
-    var especialidad by remember { mutableStateOf("") }
-    var errorLocal by remember { mutableStateOf<String?>(null) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Añadir Técnico") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = { nombre = it; errorLocal = null },
-                    label = { Text("Nombre completo *") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = correo,
-                    onValueChange = { correo = it; errorLocal = null },
-                    label = { Text("Correo *") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = telefono,
-                    onValueChange = { telefono = it; errorLocal = null },
-                    label = { Text("Teléfono *") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = especialidad,
-                    onValueChange = { especialidad = it },
-                    label = { Text("Especialidad") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (errorLocal != null) {
-                    Text(
-                        text = errorLocal.orEmpty(),
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val nombreValido = nombre.isNotBlank()
-                    val correoValido = correo.isNotBlank() && correo.contains("@")
-                    val telefonoValido = telefono.isNotBlank()
-
-                    if (!nombreValido || !correoValido || !telefonoValido) {
-                        errorLocal = "Completa nombre, correo válido y teléfono."
-                        return@Button
-                    }
-
-                    val correoDuplicado = DataMock.tecnicos.any {
-                        it.email.equals(correo.trim(), ignoreCase = true)
-                    }
-                    if (correoDuplicado) {
-                        errorLocal = "Ya existe un técnico con ese correo."
-                        return@Button
-                    }
-
-                    DataMock.tecnicos.add(
-                        Tecnico(
-                            id = (DataMock.tecnicos.maxOfOrNull { it.id } ?: 0) + 1,
-                            nombre = nombre.trim(),
-                            email = correo.trim(),
-                            telefono = telefono.trim(),
-                            especialidad = especialidad.trim().ifBlank { "General" },
-                            activas = 0,
-                            completadas = 0,
-                            calificacion = 0.0,
-                            ultimaActividad = "Recién agregado"
-                        )
-                    )
-                    onResult(true, "Técnico \"${nombre.trim()}\" agregado correctamente.")
-                    onDismiss()
-                }
-            ) { Text("Añadir") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
-    )
 }

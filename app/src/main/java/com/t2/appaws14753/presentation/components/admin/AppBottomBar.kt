@@ -17,7 +17,9 @@ fun AppBottomBar(navHostController: NavHostController) {
         ButtonNavItem.Inicio,
         ButtonNavItem.Ordenes,
         ButtonNavItem.Equipos,
-        ButtonNavItem.Tecnicos
+        ButtonNavItem.Usuarios,
+        ButtonNavItem.Ingresos,
+        ButtonNavItem.Perfil
     )
 
     val primaryBlue = Color(0xFF0D31B1)

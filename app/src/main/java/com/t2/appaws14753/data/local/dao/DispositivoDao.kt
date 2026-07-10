@@ -13,7 +13,7 @@ interface DispositivoDao {
     @Query("SELECT * FROM dispositivo")
     suspend fun getAll(): List<DispositivoEntity>
 
-    @Query("SELECT * FROM dispositivo WHERE dispositivoId = :dispositivoId")
+    @Query("SELECT * FROM dispositivo WHERE dispositivoId = :id")
     suspend fun getById(id: String): DispositivoEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -22,6 +22,6 @@ interface DispositivoDao {
     @Update
     suspend fun update(entity: DispositivoEntity)
 
-    @Query("DELETE FROM dispositivo WHERE dispositivoId = :dispositivoId")
+    @Query("DELETE FROM dispositivo WHERE dispositivoId = :id")
     suspend fun delete(id: String)
 }

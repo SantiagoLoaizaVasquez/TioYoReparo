@@ -1,10 +1,12 @@
 package com.t2.appaws14753.core.navigation.admin
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
 
@@ -13,7 +15,9 @@ sealed class ButtonNavItem(val path: String, val tittle: String,val icono: Image
     data object Inicio: ButtonNavItem(path = NavPath.HOME, tittle = "Inicio",Icons.Default.Home)
     data object Ordenes: ButtonNavItem(path = NavPath.ORDER, tittle = "Ordenes",Icons.Default.Build)
     data object Equipos: ButtonNavItem(path = NavPath.DEVICES, tittle = "Equipos",Icons.Default.Devices)
-    data object Tecnicos: ButtonNavItem(path = NavPath.TECNICOS, tittle = "Tecnicos",Icons.Default.Person)
+    data object Usuarios: ButtonNavItem(path = NavPath.USUARIOS, tittle = "Usuarios",Icons.Default.Group)
+    data object Ingresos: ButtonNavItem(path = NavPath.INGRESOS, tittle = "Ingresos",Icons.Default.AttachMoney)
+    data object Perfil: ButtonNavItem(path = NavPath.PROFILE, tittle = "Perfil",Icons.Default.AccountCircle)
 
 
 

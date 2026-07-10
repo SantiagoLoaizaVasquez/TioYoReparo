@@ -14,28 +14,64 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.t2.appaws14753.domain.model.DataMock
-import com.t2.appaws14753.domain.model.OrdenServicio
+import com.t2.appaws14753.di.AppModule
+import com.t2.appaws14753.domain.model.COMISION_TECNICO
+import com.t2.appaws14753.domain.model.Dispositivo
+import com.t2.appaws14753.domain.model.Orden
+import com.t2.appaws14753.domain.model.SesionManager
+import com.t2.appaws14753.presentation.event.EventBus
+import com.t2.appaws14753.presentation.event.UiEvent
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun WalletScreen() {
+    val context = LocalContext.current
+    val ordenUseCases = remember { AppModule.provideOrdenUseCases(context) }
+    val dispositivoUseCases = remember { AppModule.provideDispositivoUseCases(context) }
+
     val primaryBlue = Color(0xFF0D31B1)
     val lightBlue = Color(0xFF2196F3)
 
-    var showDetailDialog by remember { mutableStateOf<OrdenServicio?>(null) }
+    val sesion = SesionManager.actual
+    var ordenes by remember { mutableStateOf<List<Orden>>(emptyList()) }
+    var dispositivos by remember { mutableStateOf<List<Dispositivo>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var showDetailDialog by remember { mutableStateOf<Orden?>(null) }
 
-    val ordenesPagadas = DataMock.ordenes
-        .filter { it.estado.equals("completado", ignoreCase = true) && it.costo > 0.0 }
-        .sortedBy { it.numero }
+    LaunchedEffect(sesion?.usuarioId) {
+        isLoading = true
+        try {
+            val tecnicoId = sesion?.usuarioId
+            if (tecnicoId != null) {
+                ordenes = ordenUseCases.getOrdenes().filter { it.tecnicoId == tecnicoId }
+                dispositivos = dispositivoUseCases.getDispositivos()
+            }
+        } catch (e: Exception) {
+            EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudo cargar tu billetera."))
+        } finally {
+            isLoading = false
+        }
+    }
 
-    val totalGenerado = ordenesPagadas.sumOf { it.costo }
-    val fechaInicio = ordenesPagadas.minByOrNull { it.numero }?.fechaCreacion ?: "-"
+    fun equipoDe(dispositivoId: String): String =
+        dispositivos.firstOrNull { it.dispositivoId == dispositivoId }?.let { "${it.marca} ${it.modelo}" } ?: "Equipo desconocido"
+
+    val ordenesPagadas = ordenes
+        .filter { it.estado.equals("completado", ignoreCase = true) && it.totalCobrado > 0.0 }
+        .sortedBy { it.fechaIngreso }
+
+    val totalGenerado = ordenesPagadas.sumOf { it.totalCobrado * COMISION_TECNICO }
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    val fechaInicio = ordenesPagadas.minByOrNull { it.fechaIngreso }?.let { sdf.format(Date(it.fechaIngreso)) } ?: "-"
     val fechaFin = ordenesPagadas
-        .map { if (it.fechaCompletado != "-" ) it.fechaCompletado else it.actualizado }
-        .maxByOrNull { it } ?: "-"
+        .mapNotNull { it.fechaEntrega ?: it.fechaIngreso }
+        .maxOrNull()?.let { sdf.format(Date(it)) } ?: "-"
 
     Column(
         modifier = Modifier
@@ -81,25 +117,39 @@ fun WalletScreen() {
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 4.dp)
                 )
+                Text(
+                    text = "Tu comisión es el ${(COMISION_TECNICO * 100).toInt()}% del monto de cada orden",
+                    color = Color.White.copy(alpha = 0.75f),
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (ordenesPagadas.isEmpty()) {
-            Text(
-                text = "Aún no hay órdenes pagadas para mostrar.",
-                fontSize = 13.sp,
-                color = Color.Gray
-            )
-        } else {
-            ordenesPagadas.forEach { orden ->
-                WalletOrderItem(
-                    orden = orden,
-                    primaryBlue = primaryBlue,
-                    onViewDetail = { showDetailDialog = orden }
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = primaryBlue)
+                }
+            }
+            ordenesPagadas.isEmpty() -> {
+                Text(
+                    text = "Aún no hay órdenes pagadas para mostrar.",
+                    fontSize = 13.sp,
+                    color = Color.Gray
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+            }
+            else -> {
+                ordenesPagadas.forEach { orden ->
+                    WalletOrderItem(
+                        orden = orden,
+                        primaryBlue = primaryBlue,
+                        onViewDetail = { showDetailDialog = orden }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
 
@@ -107,13 +157,18 @@ fun WalletScreen() {
     }
 
     showDetailDialog?.let { orden ->
-        WalletOrderDetailDialog(orden = orden, primaryBlue = primaryBlue, onDismiss = { showDetailDialog = null })
+        WalletOrderDetailDialog(
+            orden = orden,
+            equipoNombre = equipoDe(orden.dispositivoId),
+            primaryBlue = primaryBlue,
+            onDismiss = { showDetailDialog = null }
+        )
     }
 }
 
 @Composable
 fun WalletOrderItem(
-    orden: OrdenServicio,
+    orden: Orden,
     primaryBlue: Color,
     onViewDetail: () -> Unit
 ) {
@@ -130,13 +185,13 @@ fun WalletOrderItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Orden #${orden.numero}:",
+                text = "Orden #${orden.ordenId.take(8)}:",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "S/${"%.2f".format(orden.costo)}",
+                    text = "S/${"%.2f".format(orden.totalCobrado * COMISION_TECNICO)}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -155,23 +210,29 @@ fun WalletOrderItem(
 }
 
 @Composable
-fun WalletOrderDetailDialog(orden: OrdenServicio, primaryBlue: Color, onDismiss: () -> Unit) {
+fun WalletOrderDetailDialog(orden: Orden, equipoNombre: String, primaryBlue: Color, onDismiss: () -> Unit) {
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Orden #${orden.numero}") },
+        title = { Text("Orden #${orden.ordenId.take(8)}") },
         text = {
             Column {
-                DetailRow("Equipo:", orden.equipo)
-                DetailRow("Tipo:", orden.tipo)
-                DetailRow("Técnico:", orden.tecnico)
-                DetailRow("Fecha creación:", orden.fechaCreacion)
-                DetailRow("Fecha completado:", orden.fechaCompletado)
+                DetailRow("Equipo:", equipoNombre)
+                DetailRow("Diagnóstico:", orden.detalleDiagnostico)
+                DetailRow("Fecha ingreso:", sdf.format(Date(orden.fechaIngreso)))
+                DetailRow("Fecha completado:", orden.fechaEntrega?.let { sdf.format(Date(it)) } ?: "-")
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Monto cobrado: S/${"%.2f".format(orden.costo)}",
+                    text = "Monto cobrado al cliente: S/${"%.2f".format(orden.totalCobrado)}",
+                    fontSize = 13.sp,
+                    color = Color.DarkGray
+                )
+                Text(
+                    text = "Tu comisión (${(COMISION_TECNICO * 100).toInt()}%): S/${"%.2f".format(orden.totalCobrado * COMISION_TECNICO)}",
                     fontWeight = FontWeight.Bold,
                     color = primaryBlue,
-                    fontSize = 15.sp
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         },

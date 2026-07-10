@@ -5,8 +5,9 @@ import androidx.navigation.compose.composable
 import com.t2.appaws14753.presentation.screen.cliente.HomeScreen
 import com.t2.appaws14753.presentation.screen.cliente.OrderScreen
 import com.t2.appaws14753.presentation.screen.cliente.DevicesScreen
+import com.t2.appaws14753.presentation.screen.cliente.ProfileScreen
 
-fun NavGraphBuilder.clienteGraph() {
+fun NavGraphBuilder.clienteGraph(onLogout: () -> Unit) {
     composable(NavPath.HOME) {
         HomeScreen()
     }
@@ -15,5 +16,8 @@ fun NavGraphBuilder.clienteGraph() {
     }
     composable(NavPath.DEVICES) {
         DevicesScreen()
+    }
+    composable(NavPath.PROFILE) {
+        ProfileScreen(onLogout = onLogout)
     }
 }

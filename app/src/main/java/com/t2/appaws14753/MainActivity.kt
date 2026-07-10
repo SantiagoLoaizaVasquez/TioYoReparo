@@ -42,6 +42,8 @@ import com.t2.appaws14753.presentation.components.SnackbarPersonalizado
 import com.t2.appaws14753.presentation.event.EventBus
 import com.t2.appaws14753.presentation.event.UiEvent
 import com.t2.appaws14753.domain.model.Roles
+import com.t2.appaws14753.domain.model.SesionManager
+import com.t2.appaws14753.di.AppModule
 import com.t2.appaws14753.ui.theme.AppAWS14753Theme
 
 class MainActivity : ComponentActivity() {
@@ -57,6 +59,18 @@ class MainActivity : ComponentActivity() {
                 val showBars = currentRoute != null && currentRoute != LoginPath.LOGIN
 
                 val snackbarHostState = remember { SnackbarHostState() }
+
+                val onLogout: () -> Unit = {
+                    SesionManager.cerrarSesion()
+                    navHostController.navigate(LoginPath.LOGIN) {
+                        popUpTo(navHostController.graph.id) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    AppModule.seedAdminInicial(this@MainActivity)
+                }
 
                 LaunchedEffect(Unit) {
                     EventBus.eventos.collect { event ->
@@ -126,6 +140,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         loginGraph(
                             onLoginSuccess = { usuario ->
+                                SesionManager.iniciarSesion(usuario)
                                 val destino = when (Roles.normalizar(usuario.tipo)) {
                                     Roles.ADMIN -> AdminPath.HOME
                                     Roles.TECNICO -> TecnicoPath.HOME
@@ -137,9 +152,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         )
-                        clienteGraph()
-                        adminGraph()
-                        tecnicoGraph()
+                        clienteGraph(onLogout)
+                        adminGraph(onLogout)
+                        tecnicoGraph(onLogout)
                     }
                 }
             }

@@ -4,6 +4,7 @@ object NavPath {
     const val HOME = "cliente/Inicio"
     const val ORDER = "cliente/Ordenes"
     const val DEVICES = "cliente/Equipos"
+    const val PROFILE = "cliente/Perfil"
 
 
     fun getTittle(path: String?): String{
@@ -11,6 +12,7 @@ object NavPath {
             path == HOME -> "Bienvenido"
             path == ORDER -> "Ordenes de Servicio"
             path == DEVICES -> "Inventario de Equipos"
+            path == PROFILE -> "Mi Perfil"
             else -> "Bievenido"
         }
     }

@@ -20,18 +20,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.t2.appaws14753.di.AppModule
 import com.t2.appaws14753.domain.model.DataMock
 import com.t2.appaws14753.domain.model.UsuarioSesion
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(onLoginExitoso: (UsuarioSesion) -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(value = false) }
     var error by remember { mutableStateOf("") }
+    var validando by remember { mutableStateOf(false) }
 
     val primaryBlue = Color(0xFF0D31B1)
     val logoBlue = Color(0xFF7B92FF)
@@ -149,18 +156,59 @@ fun LoginScreen(onLoginExitoso: (UsuarioSesion) -> Unit) {
 
             Button(
                 onClick = {
-                    val usuario = DataMock.autenticar(email.trim(), password.trim())
-                    if (usuario != null) onLoginExitoso(usuario)
-                    else error = "Correo o contraseña incorrectos"
+                    val usuarioMock = DataMock.autenticar(email.trim(), password.trim())
+                    if (usuarioMock != null) {
+                        onLoginExitoso(usuarioMock)
+                        return@Button
+                    }
+
+                    validando = true
+                    scope.launch {
+                        try {
+                            val correoIngresado = email.trim()
+                            val passwordIngresado = password.trim()
+                            val usuarioReal = AppModule.provideUsuarioUseCases(context)
+                                .getUsuarios()
+                                .firstOrNull {
+                                    it.correo.equals(correoIngresado, ignoreCase = true) &&
+                                        it.contrasena == passwordIngresado
+                                }
+
+                            if (usuarioReal != null) {
+                                onLoginExitoso(
+                                    UsuarioSesion(
+                                        email = usuarioReal.correo,
+                                        tipo = usuarioReal.rol,
+                                        nombre = usuarioReal.nombres,
+                                        usuarioId = usuarioReal.usuarioId
+                                    )
+                                )
+                            } else {
+                                error = "Correo o contraseña incorrectos"
+                            }
+                        } catch (e: Exception) {
+                            error = "Correo o contraseña incorrectos"
+                        } finally {
+                            validando = false
+                        }
+                    }
                 },
                 modifier = Modifier
                     .width(180.dp)
                     .height(48.dp),
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = primaryBlue),
-                enabled = email.isNotBlank() && password.isNotBlank()
+                enabled = email.isNotBlank() && password.isNotBlank() && !validando
             ) {
-                Text("INICIAR SESION", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                if (validando) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("INICIAR SESION", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

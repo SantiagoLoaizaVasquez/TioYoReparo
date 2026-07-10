@@ -15,7 +15,8 @@ retrofit = "3.0.0"
 converterGson = "3.0.0"
 kotlinxCoroutinesAndroid = "1.10.2"
 materialIconsExtended = "1.7.8"
-room3CommonJvm = "3.0.0-alpha06"
+room3CommonJvm = "3.0.0"
+ksp = "2.0.21-1.0.28"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,8 +41,11 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-room3-common-jvm = { group = "androidx.room3", name = "room3-common-jvm", version.ref = "room3CommonJvm" }
+androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3CommonJvm" }
+androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room3CommonJvm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

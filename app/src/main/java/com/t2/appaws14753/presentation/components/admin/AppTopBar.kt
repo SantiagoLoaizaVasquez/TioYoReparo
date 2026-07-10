@@ -2,7 +2,6 @@ package com.t2.appaws14753.presentation.components.admin
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,18 +32,6 @@ fun AppTopBar(navHostController: NavHostController) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         ""
-                    )
-                }
-            }
-        },
-        actions = {
-            if (path != NavPath.PROFILE) {
-                IconButton(
-                    onClick = { navHostController.navigate(NavPath.PROFILE) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "Mi Perfil"
                     )
                 }
             }

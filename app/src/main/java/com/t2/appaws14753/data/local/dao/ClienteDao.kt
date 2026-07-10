@@ -10,7 +10,7 @@ interface ClienteDao {
     suspend fun getAll(): List<ClienteEntity>
 
     @Query("SELECT * FROM clientes WHERE id = :id")
-    suspend fun getById(id: Int): ClienteEntity?
+    suspend fun getById(id: String): ClienteEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ClienteEntity)

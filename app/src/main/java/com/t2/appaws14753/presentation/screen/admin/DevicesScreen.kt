@@ -16,22 +16,57 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.t2.appaws14753.domain.model.DataMock
-import com.t2.appaws14753.domain.model.Equipo
+import com.t2.appaws14753.di.AppModule
+import com.t2.appaws14753.domain.model.Cliente
+import com.t2.appaws14753.domain.model.Dispositivo
+import com.t2.appaws14753.domain.model.Orden
+import com.t2.appaws14753.presentation.event.EventBus
+import com.t2.appaws14753.presentation.event.UiEvent
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun DevicesScreen() {
+    val context = LocalContext.current
+    val dispositivoUseCases = remember { AppModule.provideDispositivoUseCases(context) }
+    val clienteUseCases = remember { AppModule.provideClienteUseCases(context) }
+    val ordenUseCases = remember { AppModule.provideOrdenUseCases(context) }
+    val scope = rememberCoroutineScope()
+
     val primaryBlue = Color(0xFF0D31B1)
     val lightBlue = Color(0xFF2196F3)
-    val greenStatus = Color(0xFF4CAF50)
-    val yellowStatus = Color(0xFFFFEB3B)
+
+    var dispositivos by remember { mutableStateOf<List<Dispositivo>>(emptyList()) }
+    var clientes by remember { mutableStateOf<List<Cliente>>(emptyList()) }
+    var ordenes by remember { mutableStateOf<List<Orden>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var reloadTrigger by remember { mutableIntStateOf(0) }
 
     var showAddDialog by remember { mutableStateOf(false) }
-    var showHistoryDialog by remember { mutableStateOf<Equipo?>(null) }
-    var showDeleteDialog by remember { mutableStateOf<Equipo?>(null) }
+    var showHistoryDialog by remember { mutableStateOf<Dispositivo?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<Dispositivo?>(null) }
+
+    LaunchedEffect(reloadTrigger) {
+        isLoading = true
+        try {
+            dispositivos = dispositivoUseCases.getDispositivos()
+            clientes = clienteUseCases.getClientes()
+            ordenes = ordenUseCases.getOrdenes()
+        } catch (e: Exception) {
+            EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudieron cargar los equipos."))
+        } finally {
+            isLoading = false
+        }
+    }
+
+    fun nombreCliente(clienteId: String): String =
+        clientes.firstOrNull { it.id == clienteId }?.nombre ?: "Cliente desconocido"
 
     Column(
         modifier = Modifier
@@ -46,7 +81,7 @@ fun DevicesScreen() {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Tus equipos registrados",
+            text = "Equipos registrados de todos los clientes",
             fontSize = 13.sp,
             color = Color.Gray,
             modifier = Modifier.padding(top = 4.dp)
@@ -67,55 +102,88 @@ fun DevicesScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "${DataMock.equipos.size} equipo(s) registrado(s)",
-            fontSize = 12.sp,
-            color = Color.Gray,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        if (DataMock.equipos.isEmpty()) {
-            Text(
-                text = "No hay equipos registrados aún.",
-                fontSize = 13.sp,
-                color = Color.Gray
-            )
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 24.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = primaryBlue)
+                }
+            }
+            dispositivos.isEmpty() -> {
+                Text(
+                    text = "No hay equipos registrados aún.",
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
+            }
+            else -> {
+                Text(
+                    text = "${dispositivos.size} equipo(s) registrado(s)",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                dispositivos.forEach { dispositivo ->
+                    DeviceItemCard(
+                        dispositivo = dispositivo,
+                        propietario = nombreCliente(dispositivo.clienteId),
+                        primaryBlue = primaryBlue,
+                        lightBlue = lightBlue,
+                        onViewHistory = { showHistoryDialog = dispositivo },
+                        onDelete = { showDeleteDialog = dispositivo }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
         }
 
-        DataMock.equipos.forEach { equipo ->
-            val statusColor = if (equipo.estado.lowercase() == "activo") greenStatus else yellowStatus
-            DeviceItemCard(
-                equipo = equipo,
-                statusColor = statusColor,
-                primaryBlue = primaryBlue,
-                lightBlue = lightBlue,
-                onViewHistory = { showHistoryDialog = equipo },
-                onDelete = { showDeleteDialog = equipo }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-        
         Spacer(modifier = Modifier.height(24.dp))
     }
 
     if (showAddDialog) {
-        AddEquipmentDialog(onDismiss = { showAddDialog = false })
+        AddEquipmentDialog(
+            clientes = clientes,
+            onDismiss = { showAddDialog = false },
+            onConfirmar = { dispositivo ->
+                scope.launch {
+                    try {
+                        dispositivoUseCases.insertarDispositivo(dispositivo)
+                        EventBus.enviar(UiEvent.SUCCESS("Equipo \"${dispositivo.marca} ${dispositivo.modelo}\" registrado correctamente."))
+                        showAddDialog = false
+                        reloadTrigger++
+                    } catch (e: Exception) {
+                        EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudo registrar el equipo."))
+                    }
+                }
+            }
+        )
     }
 
-    showHistoryDialog?.let { equipo ->
-        HistoryDialog(equipo = equipo, onDismiss = { showHistoryDialog = null })
+    showHistoryDialog?.let { dispositivo ->
+        HistoryDialog(
+            dispositivo = dispositivo,
+            ordenes = ordenes.filter { it.dispositivoId == dispositivo.dispositivoId },
+            onDismiss = { showHistoryDialog = null }
+        )
     }
 
-    showDeleteDialog?.let { equipo ->
+    showDeleteDialog?.let { dispositivo ->
         AlertDialog(
             onDismissRequest = { showDeleteDialog = null },
             title = { Text("Eliminar equipo") },
-            text = { Text("¿Seguro que deseas eliminar \"${equipo.nombre}\" del inventario? Esta acción se reflejará en todas las pantallas.") },
+            text = { Text("¿Seguro que deseas eliminar \"${dispositivo.marca} ${dispositivo.modelo}\" del inventario?") },
             confirmButton = {
                 Button(
                     onClick = {
-                        DataMock.equipos.remove(equipo)
-                        showDeleteDialog = null
+                        scope.launch {
+                            try {
+                                dispositivoUseCases.eliminarDispositivo(dispositivo)
+                                EventBus.enviar(UiEvent.SUCCESS("Equipo eliminado correctamente."))
+                                showDeleteDialog = null
+                                reloadTrigger++
+                            } catch (e: Exception) {
+                                EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudo eliminar el equipo."))
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
                 ) { Text("Eliminar") }
@@ -125,10 +193,16 @@ fun DevicesScreen() {
     }
 }
 
+private fun formatFecha(timestamp: Long?): String {
+    if (timestamp == null) return "-"
+    val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
+}
+
 @Composable
 fun DeviceItemCard(
-    equipo: Equipo,
-    statusColor: Color,
+    dispositivo: Dispositivo,
+    propietario: String,
     primaryBlue: Color,
     lightBlue: Color,
     onViewHistory: () -> Unit,
@@ -152,39 +226,24 @@ fun DeviceItemCard(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(text = equipo.marca, fontSize = 11.sp, color = Color.Gray)
-                        Text(text = equipo.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(text = dispositivo.marca, fontSize = 11.sp, color = Color.Gray)
+                        Text(text = dispositivo.modelo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        color = statusColor,
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
-                        Text(
-                            text = equipo.estado,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Eliminar equipo",
-                        tint = Color(0xFFD32F2F),
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable { onDelete() }
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar equipo",
+                    tint = Color(0xFFD32F2F),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable { onDelete() }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            DeviceField("Nro. Serie:", equipo.nroSerie)
-            DeviceField("Garantía Hasta:", equipo.garantiaHasta)
-            DeviceField("Último manto:", equipo.ultimoManto)
+            DeviceField("Propietario:", propietario)
+            DeviceField("Nro. Serie:", dispositivo.numeroSerie)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -212,39 +271,81 @@ fun DeviceItemCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEquipmentDialog(onDismiss: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var brand by remember { mutableStateOf("") }
+fun AddEquipmentDialog(
+    clientes: List<Cliente>,
+    onDismiss: () -> Unit,
+    onConfirmar: (Dispositivo) -> Unit
+) {
+    var marca by remember { mutableStateOf("") }
+    var modelo by remember { mutableStateOf("") }
     var serial by remember { mutableStateOf("") }
+    var expandedCliente by remember { mutableStateOf(false) }
+    var clienteSeleccionado by remember { mutableStateOf<Cliente?>(null) }
+    var errorMsg by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Registrar Equipo") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Dispositivo") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = brand, onValueChange = { brand = it }, label = { Text("Marca") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = serial, onValueChange = { serial = it }, label = { Text("Nro. Serie") }, modifier = Modifier.fillMaxWidth())
+                ExposedDropdownMenuBox(
+                    expanded = expandedCliente,
+                    onExpandedChange = { expandedCliente = it }
+                ) {
+                    OutlinedTextField(
+                        value = clienteSeleccionado?.nombre ?: "Seleccionar cliente...",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Cliente propietario *") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCliente) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedCliente,
+                        onDismissRequest = { expandedCliente = false }
+                    ) {
+                        if (clientes.isEmpty()) {
+                            DropdownMenuItem(text = { Text("No hay clientes registrados") }, onClick = {})
+                        }
+                        clientes.forEach { cliente ->
+                            DropdownMenuItem(
+                                text = { Text("${cliente.nombre} (${cliente.email})") },
+                                onClick = {
+                                    clienteSeleccionado = cliente
+                                    expandedCliente = false
+                                    errorMsg = ""
+                                }
+                            )
+                        }
+                    }
+                }
+                OutlinedTextField(value = marca, onValueChange = { marca = it; errorMsg = "" }, label = { Text("Marca *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = modelo, onValueChange = { modelo = it; errorMsg = "" }, label = { Text("Modelo *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = serial, onValueChange = { serial = it; errorMsg = "" }, label = { Text("Nro. Serie *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+
+                if (errorMsg.isNotEmpty()) {
+                    Text(errorMsg, color = Color.Red, fontSize = 12.sp)
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (name.isNotBlank() && brand.isNotBlank() && serial.isNotBlank()) {
-                        DataMock.equipos.add(
-                            Equipo(
-                                id = DataMock.equipos.size + 1,
-                                nombre = name,
-                                marca = brand,
-                                nroSerie = serial,
-                                garantiaHasta = "Por definir",
-                                ultimoManto = "Hoy",
-                                estado = "Activo"
-                            )
-                        )
-                        onDismiss()
+                    val cliente = clienteSeleccionado
+                    if (cliente == null || marca.isBlank() || modelo.isBlank() || serial.isBlank()) {
+                        errorMsg = "Completa cliente, marca, modelo y número de serie."
+                        return@Button
                     }
+                    onConfirmar(
+                        Dispositivo(
+                            clienteId = cliente.id,
+                            marca = marca.trim(),
+                            modelo = modelo.trim(),
+                            numeroSerie = serial.trim()
+                        )
+                    )
                 }
             ) { Text("Añadir") }
         },
@@ -253,35 +354,37 @@ fun AddEquipmentDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun HistoryDialog(equipo: Equipo, onDismiss: () -> Unit) {
-    val totalMonto = equipo.historial.sumOf { it.monto }
-    
+fun HistoryDialog(dispositivo: Dispositivo, ordenes: List<Orden>, onDismiss: () -> Unit) {
+    val totalMonto = ordenes.sumOf { it.totalCobrado }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Historial: ${equipo.nombre}") },
+        title = { Text("Historial: ${dispositivo.marca} ${dispositivo.modelo}") },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text("Resumen General", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Veces reparado: ${equipo.historial.size}", fontSize = 14.sp)
-                Text("Monto total invertido: $${totalMonto}", fontSize = 14.sp, color = Color(0xFF0D31B1), fontWeight = FontWeight.SemiBold)
-                Text("Garantía actual: ${equipo.garantiaHasta}", fontSize = 14.sp)
-                
+                Text("Órdenes registradas: ${ordenes.size}", fontSize = 14.sp)
+                Text("Monto total invertido: S/${"%.2f".format(totalMonto)}", fontSize = 14.sp, color = Color(0xFF0D31B1), fontWeight = FontWeight.SemiBold)
+
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                Text("Detalle de intervenciones:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+
+                Text("Detalle de órdenes:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                if (equipo.historial.isEmpty()) {
-                    Text("No hay reparaciones registradas aún.", fontSize = 13.sp, color = Color.Gray)
+
+                if (ordenes.isEmpty()) {
+                    Text("No hay órdenes registradas aún.", fontSize = 13.sp, color = Color.Gray)
                 } else {
-                    equipo.historial.forEach { rep ->
+                    ordenes.sortedByDescending { it.fechaIngreso }.forEach { orden ->
                         Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                            Text("Fecha: ${rep.fecha}", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                            Text("Técnico: ${rep.tecnico}", fontSize = 13.sp)
-                            Text("Motivo: ${rep.motivo}", fontSize = 13.sp)
-                            Text("Costo: $${rep.monto}", fontSize = 13.sp, color = Color.DarkGray)
+                            Text("Ingreso: ${formatFecha(orden.fechaIngreso)}", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                            Text("Técnico: ${orden.tecnicoNombre.ifBlank { "Sin asignar" }}", fontSize = 13.sp)
+                            Text("Estado: ${orden.estado}", fontSize = 13.sp)
+                            Text("Diagnóstico: ${orden.detalleDiagnostico}", fontSize = 13.sp)
+                            if (orden.totalCobrado > 0) {
+                                Text("Costo: S/${"%.2f".format(orden.totalCobrado)}", fontSize = 13.sp, color = Color.DarkGray)
+                            }
                         }
                     }
                 }
