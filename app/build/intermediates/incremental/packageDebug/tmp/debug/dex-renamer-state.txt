@@ -1,4 +1,4 @@
-#Fri Jul 10 11:58:12 PET 2026
+#Fri Jul 10 13:15:30 PET 2026
 base.0=C\:\\Users\\manue\\OneDrive\\Escritorio\\AppMoviles\\TioYoReparo\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\manue\\OneDrive\\Escritorio\\AppMoviles\\TioYoReparo\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.10=C\:\\Users\\manue\\OneDrive\\Escritorio\\AppMoviles\\TioYoReparo\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\4\\classes.dex

@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.sp
 import com.t2.appaws14753.di.AppModule
 import com.t2.appaws14753.domain.model.Dispositivo
 import com.t2.appaws14753.domain.model.Orden
+import com.t2.appaws14753.domain.model.Roles
 import com.t2.appaws14753.domain.model.SesionManager
+import com.t2.appaws14753.domain.model.Usuario
 import com.t2.appaws14753.presentation.event.EventBus
 import com.t2.appaws14753.presentation.event.UiEvent
 import kotlinx.coroutines.launch
@@ -34,6 +36,7 @@ fun OrderScreen() {
     val context = LocalContext.current
     val ordenUseCases = remember { AppModule.provideOrdenUseCases(context) }
     val dispositivoUseCases = remember { AppModule.provideDispositivoUseCases(context) }
+    val usuarioUseCases = remember { AppModule.provideUsuarioUseCases(context) }
     val scope = rememberCoroutineScope()
 
     val primaryBlue = Color(0xFF0D31B1)
@@ -41,6 +44,7 @@ fun OrderScreen() {
 
     var ordenes by remember { mutableStateOf<List<Orden>>(emptyList()) }
     var dispositivos by remember { mutableStateOf<List<Dispositivo>>(emptyList()) }
+    var tecnicos by remember { mutableStateOf<List<Usuario>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var reloadTrigger by remember { mutableIntStateOf(0) }
 
@@ -57,6 +61,7 @@ fun OrderScreen() {
             if (clienteId != null) {
                 ordenes = ordenUseCases.getOrdenes().filter { it.clienteId == clienteId }
                 dispositivos = dispositivoUseCases.getDispositivos().filter { it.clienteId == clienteId }
+                tecnicos = usuarioUseCases.getUsuarios().filter { Roles.normalizar(it.rol) == Roles.TECNICO }
             }
         } catch (e: Exception) {
             EventBus.enviar(UiEvent.ERROR(e.message ?: "No se pudieron cargar tus órdenes."))
@@ -128,13 +133,20 @@ fun OrderScreen() {
             modifier = Modifier.fillMaxWidth().height(48.dp),
             shape = RoundedCornerShape(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primaryBlue),
-            enabled = dispositivos.isNotEmpty()
+            enabled = dispositivos.isNotEmpty() && tecnicos.isNotEmpty()
         ) {
             Text("Nueva Orden", fontWeight = FontWeight.SemiBold)
         }
         if (dispositivos.isEmpty() && !isLoading) {
             Text(
                 "Registra un equipo primero en la pestaña Equipos.",
+                color = Color.Gray,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        } else if (tecnicos.isEmpty() && !isLoading) {
+            Text(
+                "Aún no hay técnicos registrados para asignar la orden.",
                 color = Color.Gray,
                 fontSize = 11.sp,
                 modifier = Modifier.padding(top = 4.dp)
@@ -170,8 +182,9 @@ fun OrderScreen() {
     if (showNewOrderDialog) {
         NewOrderDialog(
             dispositivos = dispositivos,
+            tecnicos = tecnicos,
             onDismiss = { showNewOrderDialog = false },
-            onConfirmar = { dispositivo, motivo ->
+            onConfirmar = { dispositivo, tecnico, motivo ->
                 val clienteId = sesion?.usuarioId
                 if (clienteId != null) {
                     scope.launch {
@@ -180,8 +193,8 @@ fun OrderScreen() {
                                 Orden(
                                     dispositivoId = dispositivo.dispositivoId,
                                     clienteId = clienteId,
-                                    tecnicoId = "",
-                                    tecnicoNombre = "Sin asignar",
+                                    tecnicoId = tecnico.usuarioId,
+                                    tecnicoNombre = "${tecnico.nombres} ${tecnico.apellidoPaterno}",
                                     estado = "pendiente",
                                     prioridad = "Baja",
                                     fechaIngreso = System.currentTimeMillis(),
@@ -301,9 +314,16 @@ fun DetailedOrderCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewOrderDialog(dispositivos: List<Dispositivo>, onDismiss: () -> Unit, onConfirmar: (Dispositivo, String) -> Unit) {
+fun NewOrderDialog(
+    dispositivos: List<Dispositivo>,
+    tecnicos: List<Usuario>,
+    onDismiss: () -> Unit,
+    onConfirmar: (Dispositivo, Usuario, String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedDispositivo by remember { mutableStateOf<Dispositivo?>(null) }
+    var expandedTecnico by remember { mutableStateOf(false) }
+    var selectedTecnico by remember { mutableStateOf<Usuario?>(null) }
     var motivo by remember { mutableStateOf("") }
     var errorMsg by remember { mutableStateOf("") }
 
@@ -356,6 +376,43 @@ fun NewOrderDialog(dispositivos: List<Dispositivo>, onDismiss: () -> Unit, onCon
                     )
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Seleccionar Técnico", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expandedTecnico,
+                    onExpandedChange = { expandedTecnico = it }
+                ) {
+                    OutlinedTextField(
+                        value = selectedTecnico?.let { "${it.nombres} ${it.apellidoPaterno}" } ?: "Seleccionar...",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTecnico) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedTecnico,
+                        onDismissRequest = { expandedTecnico = false }
+                    ) {
+                        if (tecnicos.isEmpty()) {
+                            DropdownMenuItem(text = { Text("No hay técnicos registrados") }, onClick = {})
+                        }
+                        tecnicos.forEach { tecnico ->
+                            DropdownMenuItem(
+                                text = { Text("${tecnico.nombres} ${tecnico.apellidoPaterno}") },
+                                onClick = {
+                                    selectedTecnico = tecnico
+                                    expandedTecnico = false
+                                    errorMsg = ""
+                                }
+                            )
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
@@ -374,17 +431,22 @@ fun NewOrderDialog(dispositivos: List<Dispositivo>, onDismiss: () -> Unit, onCon
             Button(
                 onClick = {
                     val dispositivo = selectedDispositivo
+                    val tecnico = selectedTecnico
                     if (dispositivo == null) {
                         errorMsg = "Debes seleccionar un equipo"
+                        return@Button
+                    }
+                    if (tecnico == null) {
+                        errorMsg = "Debes seleccionar un técnico"
                         return@Button
                     }
                     if (motivo.isBlank()) {
                         errorMsg = "Describe el motivo de la solicitud"
                         return@Button
                     }
-                    onConfirmar(dispositivo, motivo.trim())
+                    onConfirmar(dispositivo, tecnico, motivo.trim())
                 },
-                enabled = selectedDispositivo != null
+                enabled = selectedDispositivo != null && selectedTecnico != null
             ) {
                 Text("Crear")
             }

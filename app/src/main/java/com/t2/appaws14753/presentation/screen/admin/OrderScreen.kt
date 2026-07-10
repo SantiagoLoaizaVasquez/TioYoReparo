@@ -355,19 +355,21 @@ fun NewOrderDialog(
 
                 ExposedDropdownMenuBox(expanded = expandedTecnico, onExpandedChange = { expandedTecnico = it }) {
                     OutlinedTextField(
-                        value = selectedTecnico?.let { "${it.nombres} ${it.apellidoPaterno}" } ?: "Sin asignar",
+                        value = selectedTecnico?.let { "${it.nombres} ${it.apellidoPaterno}" } ?: "Seleccionar técnico...",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Técnico") },
+                        label = { Text("Técnico *") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTecnico) },
                         modifier = Modifier.fillMaxWidth().menuAnchor()
                     )
                     ExposedDropdownMenu(expanded = expandedTecnico, onDismissRequest = { expandedTecnico = false }) {
-                        DropdownMenuItem(text = { Text("Sin asignar") }, onClick = { selectedTecnico = null; expandedTecnico = false })
+                        if (tecnicos.isEmpty()) {
+                            DropdownMenuItem(text = { Text("No hay técnicos registrados") }, onClick = {})
+                        }
                         tecnicos.forEach { tecnico ->
                             DropdownMenuItem(
                                 text = { Text("${tecnico.nombres} ${tecnico.apellidoPaterno}") },
-                                onClick = { selectedTecnico = tecnico; expandedTecnico = false }
+                                onClick = { selectedTecnico = tecnico; expandedTecnico = false; errorMsg = "" }
                             )
                         }
                     }
@@ -427,8 +429,13 @@ fun NewOrderDialog(
             Button(
                 onClick = {
                     val dispositivo = selectedDispositivo
+                    val tecnico = selectedTecnico
                     if (dispositivo == null || detalle.isBlank()) {
                         errorMsg = "Selecciona un equipo e ingresa el diagnóstico."
+                        return@Button
+                    }
+                    if (tecnico == null) {
+                        errorMsg = "Selecciona un técnico."
                         return@Button
                     }
                     val total = serviciosSeleccionados.sumOf { it.precioServicio }
@@ -436,8 +443,8 @@ fun NewOrderDialog(
                         Orden(
                             dispositivoId = dispositivo.dispositivoId,
                             clienteId = dispositivo.clienteId,
-                            tecnicoId = selectedTecnico?.usuarioId ?: "",
-                            tecnicoNombre = selectedTecnico?.let { "${it.nombres} ${it.apellidoPaterno}" } ?: "Sin asignar",
+                            tecnicoId = tecnico.usuarioId,
+                            tecnicoNombre = "${tecnico.nombres} ${tecnico.apellidoPaterno}",
                             estado = "pendiente",
                             prioridad = prioridad,
                             fechaIngreso = System.currentTimeMillis(),
