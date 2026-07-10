@@ -6,13 +6,12 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Update
-import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface OrdenDao {
     @Query("SELECT * FROM orden")
-    fun getAll(): Flow<List<OrdenEntity>>
+    suspend fun getAll(): List<OrdenEntity>
 
     @Query("SELECT * FROM orden WHERE ordenId = :ordenId")
     suspend fun getById(ordenId: String): OrdenEntity?

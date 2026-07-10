@@ -2,13 +2,12 @@ package com.t2.appaws14753.data.local.dao
 
 import com.t2.appaws14753.data.local.entity.ClienteEntity
 import androidx.room3.*
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ClienteDao {
 
     @Query("SELECT * FROM clientes")
-    fun getAll(): Flow<List<ClienteEntity>>
+    suspend fun getAll(): List<ClienteEntity>
 
     @Query("SELECT * FROM clientes WHERE id = :id")
     suspend fun getById(id: Int): ClienteEntity?
@@ -20,5 +19,5 @@ interface ClienteDao {
     suspend fun update(entity: ClienteEntity)
 
     @Query("DELETE FROM clientes WHERE id = :id")
-    suspend fun delete(id: Int)
+    suspend fun delete(id: String)
 }

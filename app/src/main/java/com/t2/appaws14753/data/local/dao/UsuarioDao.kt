@@ -6,12 +6,11 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Update
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UsuarioDao {
     @Query("SELECT * FROM usuario")
-    fun getAll(): Flow<List<UsuarioEntity>>
+    suspend fun getAll(): List<UsuarioEntity>
 
     @Query("SELECT * FROM usuario WHERE usuarioId = :usuarioId")
     suspend fun getById(usuarioId: String): UsuarioEntity?
