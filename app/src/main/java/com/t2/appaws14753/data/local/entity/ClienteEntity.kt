@@ -5,7 +5,7 @@ import java.util.UUID
 
 @Entity(tableName = "clientes")
 data class ClienteEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val nombre: String,
     val email: String,
     val telefono: String

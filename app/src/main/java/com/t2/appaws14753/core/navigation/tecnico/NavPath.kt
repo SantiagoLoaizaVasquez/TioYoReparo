@@ -1,7 +1,5 @@
 package com.t2.appaws14753.core.navigation.tecnico
 
-import androidx.compose.ui.tooling.preview.Devices
-
 object NavPath {
 
     const val HOME = "tecnico/Inicio"

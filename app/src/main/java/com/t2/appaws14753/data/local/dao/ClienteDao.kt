@@ -1,7 +1,7 @@
 package com.t2.appaws14753.data.local.dao
 
-import androidx.room3.*
 import com.t2.appaws14753.data.local.entity.ClienteEntity
+import androidx.room3.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao

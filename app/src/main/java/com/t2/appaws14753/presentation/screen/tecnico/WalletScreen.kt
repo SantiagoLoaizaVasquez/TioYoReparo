@@ -27,9 +27,6 @@ fun WalletScreen() {
 
     var showDetailDialog by remember { mutableStateOf<OrdenServicio?>(null) }
 
-    // Lectura directa de DataMock (igual que en HomeScreen): así el total
-    // se refresca de inmediato cuando el técnico marca una orden como
-    // terminada en OrderScreen, sin depender del tamaño de la lista.
     val ordenesPagadas = DataMock.ordenes
         .filter { it.estado.equals("completado", ignoreCase = true) && it.costo > 0.0 }
         .sortedBy { it.numero }

@@ -1,46 +1,46 @@
-com.t2.appaws14753.app-core-ktx-1.18.0-0 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\083ef1589cebcb4b6743efa7a66bd2c2\transformed\core-ktx-1.18.0\res
-com.t2.appaws14753.app-lifecycle-viewmodel-ktx-2.10.0-1 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\0f0a00cd6b7e18c1d4e946a21e7417bb\transformed\lifecycle-viewmodel-ktx-2.10.0\res
-com.t2.appaws14753.app-lifecycle-viewmodel-2 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\12900252363bf7ff6437fe5d7e607e9f\transformed\lifecycle-viewmodel\res
-com.t2.appaws14753.app-ui-tooling-3 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\1e096270ab7d674aa0794d14c6e530a5\transformed\ui-tooling\res
-com.t2.appaws14753.app-lifecycle-process-2.10.0-4 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\35dad10aa2114c15d8127f2c7b011e4a\transformed\lifecycle-process-2.10.0\res
-com.t2.appaws14753.app-material-icons-core-release-5 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\3610530d65f0d71c1aec369dd3ba0553\transformed\material-icons-core-release\res
-com.t2.appaws14753.app-lifecycle-runtime-6 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\477ae9de64927a6c06f033e848aeb0d3\transformed\lifecycle-runtime\res
-com.t2.appaws14753.app-ui-test-manifest-1.11.2-7 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\48d62a4e0c5dbd14c1d94a1cddacbaa3\transformed\ui-test-manifest-1.11.2\res
-com.t2.appaws14753.app-graphics-path-1.0.1-8 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\4f0d259bcfd442508f19acfe2fb4bef1\transformed\graphics-path-1.0.1\res
-com.t2.appaws14753.app-window-1.5.0-9 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\5b7fcb4aec8a4c79e6d31a6e0c9b4d81\transformed\window-1.5.0\res
-com.t2.appaws14753.app-ui-10 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\5fe1d3b3c62d3d4f10697d29d6d8a1be\transformed\ui\res
-com.t2.appaws14753.app-navigationevent-11 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\600aafcdf58f37e9ba8b758830627b4e\transformed\navigationevent\res
-com.t2.appaws14753.app-material-icons-extended-release-12 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\6642239be20de133f616b35ca4fc52ca\transformed\material-icons-extended-release\res
-com.t2.appaws14753.app-material3-13 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\68092a874b6132bf1942c1d621d95bd2\transformed\material3\res
-com.t2.appaws14753.app-navigation-runtime-release-14 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\6d686aaab23c6c284335de97105bd6f7\transformed\navigation-runtime-release\res
-com.t2.appaws14753.app-transition-1.6.0-15 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\769842fb5dffe2e1cd3b44f892d9418c\transformed\transition-1.6.0\res
-com.t2.appaws14753.app-navigation-common-release-16 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\7b84cfb688b9b0a65dd77bd5c024dced\transformed\navigation-common-release\res
-com.t2.appaws14753.app-lifecycle-livedata-core-2.10.0-17 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\7cc5f937c056edb8b6ab35202cc82b41\transformed\lifecycle-livedata-core-2.10.0\res
-com.t2.appaws14753.app-activity-compose-1.13.0-18 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\8ace15d2a6d954111746463dfc8ddb47\transformed\activity-compose-1.13.0\res
-com.t2.appaws14753.app-core-1.18.0-19 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\90d2727faf1da6703fac6d7d6ca1e8d7\transformed\core-1.18.0\res
-com.t2.appaws14753.app-savedstate-ktx-1.4.0-20 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\98d609ab5bb00c532f8101a8ef0494d5\transformed\savedstate-ktx-1.4.0\res
-com.t2.appaws14753.app-navigation-compose-release-21 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\a24ee6adb3a7b0221c1601a713aadffe\transformed\navigation-compose-release\res
-com.t2.appaws14753.app-emoji2-1.4.0-22 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\a566c1e7519bf2770500575e11210521\transformed\emoji2-1.4.0\res
-com.t2.appaws14753.app-customview-poolingcontainer-1.0.0-23 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\a6f0062cedcd3621aece3711fa01043d\transformed\customview-poolingcontainer-1.0.0\res
-com.t2.appaws14753.app-lifecycle-livedata-core-ktx-2.10.0-24 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\b6dc69ae89f0816dcece8a360e99143f\transformed\lifecycle-livedata-core-ktx-2.10.0\res
-com.t2.appaws14753.app-startup-runtime-1.1.1-25 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\b8217877d1eeb6b479b073a6eafb3f13\transformed\startup-runtime-1.1.1\res
-com.t2.appaws14753.app-savedstate-26 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\c6931116c70ec658ad2337a530bff02d\transformed\savedstate\res
-com.t2.appaws14753.app-runtime-saveable-27 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\cdabc4c27c95c1d5b13b9700f64c6bc1\transformed\runtime-saveable\res
-com.t2.appaws14753.app-tracing-1.2.0-28 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\d99ed63d8e6339e9116633848d5111ab\transformed\tracing-1.2.0\res
-com.t2.appaws14753.app-lifecycle-livedata-2.10.0-29 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\dc3d39f1a9fc31895b088d87f798bfcd\transformed\lifecycle-livedata-2.10.0\res
-com.t2.appaws14753.app-core-viewtree-1.0.0-30 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\efa84b2a1f2d5c719d6365a98bafa2ea\transformed\core-viewtree-1.0.0\res
-com.t2.appaws14753.app-ui-text-31 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\f09889a3755b60ac3f1ce63959275f3a\transformed\ui-text\res
-com.t2.appaws14753.app-annotation-experimental-1.4.1-32 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\f462a888a4bd3f1925a5808e8a251191\transformed\annotation-experimental-1.4.1\res
-com.t2.appaws14753.app-ui-graphics-33 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\f47cb526791b222e786f2d7adf7f7431\transformed\ui-graphics\res
-com.t2.appaws14753.app-activity-ktx-1.13.0-34 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\f8f81f2d90a09ebae393e15f66a3ea4b\transformed\activity-ktx-1.13.0\res
-com.t2.appaws14753.app-profileinstaller-1.4.0-35 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\f9f89dfabb5ac02c3ee69c92e978bdc6\transformed\profileinstaller-1.4.0\res
-com.t2.appaws14753.app-core-runtime-2.2.0-36 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\fae635fc6e76973cbc5d8c2b822196dd\transformed\core-runtime-2.2.0\res
-com.t2.appaws14753.app-activity-1.13.0-37 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\fd33df70836acab711afb24d05324c1f\transformed\activity-1.13.0\res
-com.t2.appaws14753.app-foundation-38 C:\Users\GAMER\.gradle\caches\9.6.1\transforms\fe8dc1d913234ea2c8cf39c4a1a01860\transformed\foundation\res
-com.t2.appaws14753.app-pngs-39 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\build\generated\res\pngs\debug
-com.t2.appaws14753.app-updated_navigation_xml-40 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\build\generated\updated_navigation_xml\debug
-com.t2.appaws14753.app-packageDebugResources-41 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.t2.appaws14753.app-packageDebugResources-42 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.t2.appaws14753.app-debug-43 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\build\intermediates\merged_res\debug\mergeDebugResources
-com.t2.appaws14753.app-debug-44 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\src\debug\res
-com.t2.appaws14753.app-main-45 C:\Users\GAMER\Documents\appclaude\AppMoviles-main\app\src\main\res
+com.t2.appaws14753.app-core-ktx-1.18.0-0 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\083ef1589cebcb4b6743efa7a66bd2c2\transformed\core-ktx-1.18.0\res
+com.t2.appaws14753.app-lifecycle-viewmodel-ktx-2.10.0-1 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\0f0a00cd6b7e18c1d4e946a21e7417bb\transformed\lifecycle-viewmodel-ktx-2.10.0\res
+com.t2.appaws14753.app-lifecycle-viewmodel-2 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\12900252363bf7ff6437fe5d7e607e9f\transformed\lifecycle-viewmodel\res
+com.t2.appaws14753.app-ui-tooling-3 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\1e096270ab7d674aa0794d14c6e530a5\transformed\ui-tooling\res
+com.t2.appaws14753.app-lifecycle-process-2.10.0-4 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\35dad10aa2114c15d8127f2c7b011e4a\transformed\lifecycle-process-2.10.0\res
+com.t2.appaws14753.app-material-icons-core-release-5 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\3610530d65f0d71c1aec369dd3ba0553\transformed\material-icons-core-release\res
+com.t2.appaws14753.app-lifecycle-runtime-6 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\477ae9de64927a6c06f033e848aeb0d3\transformed\lifecycle-runtime\res
+com.t2.appaws14753.app-ui-test-manifest-1.11.2-7 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\48d62a4e0c5dbd14c1d94a1cddacbaa3\transformed\ui-test-manifest-1.11.2\res
+com.t2.appaws14753.app-graphics-path-1.0.1-8 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\4f0d259bcfd442508f19acfe2fb4bef1\transformed\graphics-path-1.0.1\res
+com.t2.appaws14753.app-window-1.5.0-9 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\5b7fcb4aec8a4c79e6d31a6e0c9b4d81\transformed\window-1.5.0\res
+com.t2.appaws14753.app-ui-10 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\5fe1d3b3c62d3d4f10697d29d6d8a1be\transformed\ui\res
+com.t2.appaws14753.app-navigationevent-11 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\600aafcdf58f37e9ba8b758830627b4e\transformed\navigationevent\res
+com.t2.appaws14753.app-material-icons-extended-release-12 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\6642239be20de133f616b35ca4fc52ca\transformed\material-icons-extended-release\res
+com.t2.appaws14753.app-material3-13 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\68092a874b6132bf1942c1d621d95bd2\transformed\material3\res
+com.t2.appaws14753.app-navigation-runtime-release-14 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\6d686aaab23c6c284335de97105bd6f7\transformed\navigation-runtime-release\res
+com.t2.appaws14753.app-transition-1.6.0-15 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\769842fb5dffe2e1cd3b44f892d9418c\transformed\transition-1.6.0\res
+com.t2.appaws14753.app-navigation-common-release-16 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\7b84cfb688b9b0a65dd77bd5c024dced\transformed\navigation-common-release\res
+com.t2.appaws14753.app-lifecycle-livedata-core-2.10.0-17 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\7cc5f937c056edb8b6ab35202cc82b41\transformed\lifecycle-livedata-core-2.10.0\res
+com.t2.appaws14753.app-activity-compose-1.13.0-18 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\8ace15d2a6d954111746463dfc8ddb47\transformed\activity-compose-1.13.0\res
+com.t2.appaws14753.app-core-1.18.0-19 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\90d2727faf1da6703fac6d7d6ca1e8d7\transformed\core-1.18.0\res
+com.t2.appaws14753.app-savedstate-ktx-1.4.0-20 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\98d609ab5bb00c532f8101a8ef0494d5\transformed\savedstate-ktx-1.4.0\res
+com.t2.appaws14753.app-navigation-compose-release-21 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\a24ee6adb3a7b0221c1601a713aadffe\transformed\navigation-compose-release\res
+com.t2.appaws14753.app-emoji2-1.4.0-22 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\a566c1e7519bf2770500575e11210521\transformed\emoji2-1.4.0\res
+com.t2.appaws14753.app-customview-poolingcontainer-1.0.0-23 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\a6f0062cedcd3621aece3711fa01043d\transformed\customview-poolingcontainer-1.0.0\res
+com.t2.appaws14753.app-lifecycle-livedata-core-ktx-2.10.0-24 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\b6dc69ae89f0816dcece8a360e99143f\transformed\lifecycle-livedata-core-ktx-2.10.0\res
+com.t2.appaws14753.app-startup-runtime-1.1.1-25 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\b8217877d1eeb6b479b073a6eafb3f13\transformed\startup-runtime-1.1.1\res
+com.t2.appaws14753.app-savedstate-26 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\c6931116c70ec658ad2337a530bff02d\transformed\savedstate\res
+com.t2.appaws14753.app-runtime-saveable-27 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\cdabc4c27c95c1d5b13b9700f64c6bc1\transformed\runtime-saveable\res
+com.t2.appaws14753.app-tracing-1.2.0-28 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\d99ed63d8e6339e9116633848d5111ab\transformed\tracing-1.2.0\res
+com.t2.appaws14753.app-lifecycle-livedata-2.10.0-29 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\dc3d39f1a9fc31895b088d87f798bfcd\transformed\lifecycle-livedata-2.10.0\res
+com.t2.appaws14753.app-core-viewtree-1.0.0-30 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\efa84b2a1f2d5c719d6365a98bafa2ea\transformed\core-viewtree-1.0.0\res
+com.t2.appaws14753.app-ui-text-31 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\f09889a3755b60ac3f1ce63959275f3a\transformed\ui-text\res
+com.t2.appaws14753.app-annotation-experimental-1.4.1-32 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\f462a888a4bd3f1925a5808e8a251191\transformed\annotation-experimental-1.4.1\res
+com.t2.appaws14753.app-ui-graphics-33 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\f47cb526791b222e786f2d7adf7f7431\transformed\ui-graphics\res
+com.t2.appaws14753.app-activity-ktx-1.13.0-34 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\f8f81f2d90a09ebae393e15f66a3ea4b\transformed\activity-ktx-1.13.0\res
+com.t2.appaws14753.app-profileinstaller-1.4.0-35 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\f9f89dfabb5ac02c3ee69c92e978bdc6\transformed\profileinstaller-1.4.0\res
+com.t2.appaws14753.app-core-runtime-2.2.0-36 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\fae635fc6e76973cbc5d8c2b822196dd\transformed\core-runtime-2.2.0\res
+com.t2.appaws14753.app-activity-1.13.0-37 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\fd33df70836acab711afb24d05324c1f\transformed\activity-1.13.0\res
+com.t2.appaws14753.app-foundation-38 C:\Users\Santiago Loaiza\.gradle\caches\9.6.1\transforms\fe8dc1d913234ea2c8cf39c4a1a01860\transformed\foundation\res
+com.t2.appaws14753.app-pngs-39 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\build\generated\res\pngs\debug
+com.t2.appaws14753.app-updated_navigation_xml-40 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\build\generated\updated_navigation_xml\debug
+com.t2.appaws14753.app-packageDebugResources-41 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.t2.appaws14753.app-packageDebugResources-42 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.t2.appaws14753.app-debug-43 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.t2.appaws14753.app-debug-44 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\src\debug\res
+com.t2.appaws14753.app-main-45 C:\Users\Santiago Loaiza\Documents\AndroidStudio\AppMoviles-main\app\src\main\res

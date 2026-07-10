@@ -3,10 +3,8 @@ package com.t2.appaws14753.data.mapper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.t2.appaws14753.data.local.entity.OrdenEntity
-import com.t2.appaws14753.data.local.entity.UsuarioEntity
 import com.t2.appaws14753.domain.model.DetalleServicio
 import com.t2.appaws14753.domain.model.Orden
-import com.t2.appaws14753.domain.model.Usuario
 
 
 object OrdenMapper {

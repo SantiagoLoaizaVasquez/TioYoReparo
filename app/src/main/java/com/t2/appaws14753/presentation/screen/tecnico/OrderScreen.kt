@@ -40,9 +40,6 @@ fun OrderScreen() {
 
     val scope = rememberCoroutineScope()
 
-    // Lectura directa de DataMock (igual que en HomeScreen): así la lista
-    // se refresca también cuando se actualiza una orden existente
-    // (marcar como terminado), no solo cuando cambia el tamaño de la lista.
     val filteredOrders = DataMock.ordenes
         .filter {
             selectedFilter == "Todos los Estados" || it.estado.equals(selectedFilter, ignoreCase = true)
@@ -263,8 +260,6 @@ fun DetailedOrderCard(
                 }
             }
 
-            // El técnico solo puede marcar la orden como terminada; ningún otro
-            // cambio de estado está disponible desde esta pantalla.
             if (!orden.estado.equals("completado", ignoreCase = true)) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(

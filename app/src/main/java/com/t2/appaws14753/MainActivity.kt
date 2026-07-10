@@ -58,8 +58,6 @@ class MainActivity : ComponentActivity() {
 
                 val snackbarHostState = remember { SnackbarHostState() }
 
-                // Escucha central de eventos: cualquier pantalla puede emitir
-                // EventBus.enviar(UiEvent.SUCCESS/ERROR/WARNING) y aquí se muestra el Snackbar.
                 LaunchedEffect(Unit) {
                     EventBus.eventos.collect { event ->
                         when (event) {

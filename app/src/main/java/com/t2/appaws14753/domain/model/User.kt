@@ -9,22 +9,14 @@ data class UsuarioSesion(
     val nombre: String
 )
 
-/**
- * Roles válidos dentro de la aplicación.
- * Centralizar estas constantes evita errores de tipeo/mayúsculas al comparar
- * el rol de sesión contra el destino de navegación (bug típico de que el
- * login "no navega" cuando el string no calza exactamente).
- */
 object Roles {
     const val ADMIN = "admin"
     const val CLIENTE = "cliente"
     const val TECNICO = "tecnico"
 
-    /** Normaliza un rol recibido (espacios y mayúsculas) para compararlo de forma segura. */
     fun normalizar(rol: String?): String = rol?.trim()?.lowercase().orEmpty()
 }
 
-/** Perfil editable del administrador, mostrado/editado en AdminProfileScreen. */
 data class AdminProfile(
     val nombreCompleto: String,
     val usuario: String,
@@ -45,13 +37,13 @@ object DataMock {
     val tecnicos = mutableStateListOf(
         Tecnico(
             id = 1,
-            nombre = "Michael Charger",
-            email = "michael.charger@hardware.com",
-            telefono = "999-111-222",
+            nombre = "Melcocharger Uncle",
+            email = "melcochargerdefe@hardware.com",
+            telefono = "280-180-018",
             especialidad = "Laptops y PCs",
             activas = 2,
             completadas = 1,
-            calificacion = 4.8,
+            calificacion = 1.8,
             ultimaActividad = "Hoy"
         )
     )

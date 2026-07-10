@@ -2,7 +2,6 @@ package com.t2.appaws14753.core.navigation.admin
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.t2.appaws14753.core.navigation.admin.NavPath
 import com.t2.appaws14753.presentation.screen.admin.HomeScreen
 import com.t2.appaws14753.presentation.screen.admin.OrderScreen
 import com.t2.appaws14753.presentation.screen.admin.DevicesScreen

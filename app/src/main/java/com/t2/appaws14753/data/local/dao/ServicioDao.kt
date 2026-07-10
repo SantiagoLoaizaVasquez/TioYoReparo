@@ -1,12 +1,11 @@
 package com.t2.appaws14753.data.local.dao
 
+import com.t2.appaws14753.data.local.entity.ServicioEntity
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Update
-
-import com.t2.appaws14753.data.local.entity.ServicioEntity
 import kotlinx.coroutines.flow.Flow
 
 

@@ -2,13 +2,10 @@ package com.t2.appaws14753.core.navigation.admin
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.t2.appaws14753.core.navigation.admin.NavPath
 
 
 sealed class ButtonNavItem(val path: String, val tittle: String,val icono: ImageVector) {

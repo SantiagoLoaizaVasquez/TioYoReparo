@@ -27,9 +27,7 @@ fun HomeScreen() {
     val greenStatus = Color(0xFF4CAF50)
     val orangeStatus = Color(0xFFFF9800)
 
-    // Todo se lee en vivo desde DataMock, la misma fuente que usan
-    // las pantallas de Equipos y Ordenes, para que los contadores
-    // siempre reflejen lo que realmente hay (agregar/quitar se nota aqui).
+
     val equiposCount = DataMock.equipos.size
     val ordenesActivas = DataMock.ordenes.count {
         it.estado.equals("pendiente", ignoreCase = true) || it.estado.equals("en proceso", ignoreCase = true)

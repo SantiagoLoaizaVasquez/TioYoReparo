@@ -34,7 +34,6 @@ fun ProfileScreen() {
 
     var isEditing by remember { mutableStateOf(false) }
 
-    // Copia editable del perfil; solo se confirma al guardar
     var draft by remember { mutableStateOf(DataMock.adminProfile.value) }
 
     val scope = rememberCoroutineScope()
@@ -93,7 +92,6 @@ fun ProfileScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // El feedback ahora se muestra con el Snackbar central del EventBus (en MainActivity).
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -154,7 +152,6 @@ fun ProfileScreen() {
             ) {
                 OutlinedButton(
                     onClick = {
-                        // descarta cambios y vuelve al valor guardado
                         draft = DataMock.adminProfile.value
                         isEditing = false
                     },
